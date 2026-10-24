@@ -1,0 +1,7 @@
+{
+  "name": "word-garden",
+  "private": true,
+  "type": "module",
+  "scripts": { "build:pronunciation": "node scripts/build-pronunciation-engine.mjs", "test": "node --test tests/*.test.mjs" },
+  "devDependencies": { "esbuild": "0.25.12", "phonemize": "2.0.1" }
+}

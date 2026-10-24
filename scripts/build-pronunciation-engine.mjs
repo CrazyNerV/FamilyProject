@@ -1,0 +1,12 @@
+import { build } from 'esbuild';
+import { readFile, writeFile, mkdir, copyFile } from 'node:fs/promises';
+import { gzipSync } from 'node:zlib';
+import { createRequire } from 'node:module';
+import path from 'node:path';
+const require=createRequire(import.meta.url);
+const upstream=path.dirname(require.resolve('phonemize/en-g2p'));
+const result=await build({stdin:{contents:'export {EnglishG2P} from "phonemize/en-g2p";',resolveDir:process.cwd(),loader:'js'},bundle:true,minify:true,format:'esm',platform:'browser',write:false,plugins:[{name:'json-default-imports',setup(builder){builder.onLoad({filter:/en-g2p\.mjs$/},async({path:file})=>({contents:(await readFile(file,'utf8')).replace(/import\*as (\w+) from/g,'import $1 from'),loader:'js',resolveDir:path.dirname(file)}));}}]});
+await mkdir('dist/vendor',{recursive:true});
+await writeFile('dist/vendor/english-engine.mjs.gz',gzipSync(result.outputFiles[0].contents,{level:9}));
+await copyFile(path.join(upstream,'../LICENSE'),'dist/vendor/phonemize-LICENSE.txt');
+console.log('Built the self-hosted English pronunciation engine (phonemize 2.0.1).');

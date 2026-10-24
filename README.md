@@ -16,6 +16,7 @@ python -m http.server 5173 --directory dist
 
 - 단어·숙어 추가, 수정, 삭제 및 검색
 - 브라우저 음성 합성을 이용한 영어 발음 재생
+- 영어 입력 시 한글 참고 발음 자동 생성: 등록 창 미리보기, 사전 카드, 퀴즈 채점 후 표시
 - 사전에서 중복 없이 무작위 최대 10문항 출제
 - 한글 뜻 → 영어 전체 입력
 - 한글 뜻과 일부 알파벳 → 빠진 알파벳만 입력
@@ -31,6 +32,12 @@ python -m http.server 5173 --directory dist
 
 Web Speech API의 speechSynthesis를 사용합니다. 별도 API 키는 필요하지 않습니다. 기기에 제공되는 영어 음성을 우선 사용하며, 음성과 품질은 브라우저·운영체제에 따라 달라집니다.
 
+한글 참고 발음은 앱에 포함한 phonemize 2.0.1의 영어 발음 데이터와 G2P 규칙으로 발음을 추출하고, `dist/phonetic-hangul.mjs`에서 한글로 근사 변환합니다. 별도 사전 API·API 키·음성 인식·마이크가 필요하지 않습니다. 약 594KB의 압축 엔진을 같은 GitHub Pages 서버에서 한 번 불러온 뒤 브라우저에서 처리하며, 변환을 위해 입력한 영어를 외부 서비스에 보내지 않습니다. 브라우저의 기존 합성 음성은 공급자에 따라 온라인 음성을 사용할 수 있습니다.
+
+한글 표기는 미국 영어 기준의 학습 보조용 추정치입니다. 연음, 강세, 동형이의어, 신조어, 오타에서 실제 합성 음성과 차이가 있을 수 있습니다. 철자·숙어가 맞는지 검증하는 기능이 아닙니다. 퀴즈 문제를 푸는 동안에는 표기를 숨기고 채점 후에 표시합니다. 기존 사전 데이터는 변경하지 않으며 영어를 수정하면 자동으로 다시 생성합니다.
+
+엔진은 [phonemize](https://github.com/hans00/phonemize)의 MIT 라이선스를 따릅니다. 라이선스와 재빌드 설명은 `dist/vendor/`에 있습니다. 최신 브라우저의 ES modules, 동적 모듈 import, DecompressionStream을 사용합니다. 한글 표기 로딩에 실패해도 사전·퀴즈·기존 듣기 기능은 계속 사용할 수 있습니다.
+
 참고: https://developer.mozilla.org/en-US/docs/Web/API/Window/speechSynthesis
 
 ## 구성
@@ -39,4 +46,8 @@ Web Speech API의 speechSynthesis를 사용합니다. 별도 API 키는 필요�
 - `dist/style.css`: 반응형 디자인
 - `dist/app.js`: 사전, 퀴즈, 저장, 발음
 
-JavaScript 구문 검사는 통과했습니다. 현재 실행 환경의 로컬 브라우저 접속 제약으로 실제 화면과 음성 재생에 대한 브라우저 검증은 완료하지 못했습니다.
+## 검증과 재빌드
+
+`node --test tests/pronunciation.test.mjs`로 압축 엔진, 실제 단어 변환, 숙어 공백, 특수문자 처리, 중복 로딩 방지를 검사합니다. Node 테스트에서는 브라우저 전용 blob 모듈 URL만 data URL로 대체합니다.
+
+화면은 빌드 없이 서비스할 수 있습니다. 엔진을 다시 만들 때만 `npm install` 후 `npm run build:pronunciation`을 실행합니다. 엔진과 빌드 도구는 package.json에 버전을 고정했습니다.

@@ -11,3 +11,12 @@
 .test input.letter-cell.correct{border-color:#779764;background:#eef5e8}
 .test input.letter-cell.incorrect{border-color:#c18b76;background:#fcf0e9}
 @media(max-width:480px){.letter-answer{column-gap:22px;row-gap:16px}.letter-word{gap:4px}.test input.letter-cell,.letter-given{width:27px;height:38px;flex-basis:27px;font-size:21px}}
+
+.pronunciation{margin:10px 0 12px;display:flex;flex-direction:column;gap:5px;line-height:1.6}
+.pronunciation-label{font-size:9px;letter-spacing:.1px;color:#8b9483}
+.pronunciation-text{font-size:14px;font-weight:500;color:#637753;overflow-wrap:anywhere}
+.card .word{margin-bottom:4px}
+#pronunciation-preview{padding:0 12px;border-left:3px solid #d8e2ca;margin:14px 0 20px;min-height:40px}
+.feedback .pronunciation{margin-bottom:0}
+.feedback .pronunciation-text{font-size:16px}
+.bottom-note{line-height:1.9}
