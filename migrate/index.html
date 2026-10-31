@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex"><title>Word Garden · 버전 1 데이터 이관</title>
+  <style>
+    :root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#f7f8f2;color:#243b32;font:15px/1.8 system-ui,sans-serif}header,main{max-width:920px;margin:auto;padding:26px 24px}header{border-bottom:1px solid #e1e6dd;display:flex;justify-content:space-between;gap:20px;align-items:center}header a{color:#285c45;text-decoration:none}.brand{font-size:24px;font-weight:700}header>a:last-child{font-size:12px}h1{font-size:34px;line-height:1.5;margin:12px 0}h2{font-size:20px;margin-top:0}.eyebrow{font-size:11px;letter-spacing:2px;color:#658064}.lead,.muted{color:#7c857d}.lead{margin-bottom:30px}.panel{background:#fff;border:1px solid #e1e6dd;border-radius:16px;padding:28px;margin:22px 0}.stats{display:flex;gap:40px;background:#e8eddd;border-radius:12px;padding:20px 26px;margin:22px 0}.stats strong{font-size:28px;display:block}.stats span{font-size:12px;color:#6d7968}.actions{display:flex;flex-wrap:wrap;gap:12px;align-items:center;margin-top:22px}button,.button{font:inherit;font-size:13px;display:inline-block;padding:12px 20px;border:0;border-radius:9px;background:#285c45;color:#fff;text-decoration:none;cursor:pointer}button.secondary{background:#edf0e7;color:#243b32}button:disabled{opacity:.45;cursor:not-allowed}button:focus-visible,a:focus-visible{outline:3px solid #adbc71;outline-offset:3px}#error{color:#a33f2a}#status{color:#285c45}.sample p{margin:0;padding:10px 0;border-bottom:1px solid #e1e6dd;overflow-wrap:anywhere}.sample strong{margin-right:16px}.muted{font-size:12px}ol{padding-left:22px}li{margin:8px 0}footer{font-size:11px;color:#7c857d;border-top:1px solid #e1e6dd;padding:20px 0;margin-top:35px}@media(max-width:600px){h1{font-size:28px}.panel{padding:22px}.stats{gap:24px;padding:18px}.sample strong{display:block}.actions>*{width:100%;text-align:center}}
+  </style>
+</head>
+<body>
+<header><a class="brand" href="../dist/">✳ word garden</a><a href="../dist/">기존 버전 1로 돌아가기</a></header>
+<main>
+  <div class="eyebrow">BRING YOUR WORDS HOME</div><h1>버전 1의 정원을<br>새 계정으로 옮겨 보세요.</h1>
+  <p class="lead">버전 1을 사용하던 기기와 브라우저에서 이 페이지를 열어 주세요.<br>현재 브라우저의 사전과 학습 기록을 파일로 저장할 수 있습니다.</p>
+  <section class="panel"><h2>01 · 이 브라우저의 데이터 확인</h2><p class="muted">다른 기기·브라우저·시크릿 창에는 기존 데이터가 없을 수 있어요. 저장하지 않은 예시 표현은 백업에 포함되지 않습니다.</p>
+    <div class="stats"><div><span>사전 표현</span><strong id="word-count">—</strong></div><div><span>학습 기록</span><strong id="history-count">—</strong></div></div>
+    <div id="error" role="alert"></div><div id="status" role="status"></div><div id="sample" class="sample"></div>
+    <div class="actions"><button id="download" disabled>백업 파일 저장하기 ↓</button><button class="secondary" id="reload">데이터 다시 확인</button></div>
+    <p class="muted">파일은 이 기기에만 저장됩니다. 내보내기로 기존 사전이나 기록이 삭제되거나 서버로 전송되지 않습니다.</p>
+  </section>
+  <section class="panel"><h2>02 · 버전 2에서 가져오기</h2><ol><li>위에서 백업 파일을 저장합니다.</li><li>버전 2에서 데이터를 받을 본인 계정으로 로그인합니다.</li><li>‘데이터 이관’에서 백업 파일을 선택하고 내용을 확인합니다.</li><li>계정과 공통 사전 반영 안내를 확인한 뒤 가져오기를 진행합니다.</li></ol>
+    <p class="muted">같은 영어 표현은 기존 개인 사전의 뜻을 유지하고 건너뜁니다. 학습 기록은 합친 뒤 최근 100회만 보관합니다. 백업 파일에는 학습 데이터가 들어 있으니 본인이 보관해 주세요.</p>
+    <a class="button" href="https://word-garden-v2-kasis-1028.ardentperch34.chatgpt.site/migrate" target="_blank" rel="noopener noreferrer">버전 2에서 가져오기 ↗</a>
+  </section>
+  <footer>✳ word garden · 기존 브라우저 데이터는 그대로 보존됩니다.</footer>
+</main>
+<script>
+  let snapshot=null;
+  const get=id=>document.getElementById(id);
+  function read(key){const raw=localStorage.getItem(key);if(raw===null)return [];const value=JSON.parse(raw);if(!Array.isArray(value))throw new Error('저장된 데이터 형식이 올바르지 않습니다. 기존 버전 1에서 내용을 확인해 주세요.');return value;}
+  function inspect(){
+    snapshot=null;get('download').disabled=true;get('error').textContent='';get('status').textContent='';get('sample').replaceChildren();
+    try{
+      const words=read('wg-words'),history=read('wg-history');
+      if(words.length>5000||history.length>100)throw new Error('한 파일에서 사전 표현 5,000개와 학습 기록 100개까지 처리할 수 있습니다.');
+      snapshot={format:'word-garden-v1-backup',version:1,exportedAt:new Date().toISOString(),source:location.origin,words,history};
+      get('word-count').textContent=String(words.length);get('history-count').textContent=String(history.length);
+      get('download').disabled=!words.length&&!history.length;
+      get('status').textContent=words.length||history.length?'저장된 데이터를 찾았습니다. 백업 파일을 저장해 주세요.':'이 브라우저에서 저장된 데이터를 찾지 못했습니다. 버전 1을 이용하던 기기·브라우저로 다시 열어 주세요.';
+      words.slice(0,5).forEach(word=>{const row=document.createElement('p'),en=document.createElement('strong'),ko=document.createElement('span');en.textContent=String(word?.en||'');ko.textContent=String(word?.ko||'');row.append(en,ko);get('sample').append(row);});
+    }catch(error){get('word-count').textContent='—';get('history-count').textContent='—';get('error').textContent='데이터를 읽지 못했습니다. '+error.message;}
+  }
+  get('reload').onclick=inspect;
+  get('download').onclick=()=>{
+    if(!snapshot)return;
+    const blob=new Blob([JSON.stringify(snapshot,null,2)],{type:'application/json;charset=utf-8'}),url=URL.createObjectURL(blob),link=document.createElement('a');
+    link.href=url;link.download='word-garden-v1-'+new Date().toISOString().slice(0,10)+'.json';document.body.append(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
+    get('status').textContent='백업 파일 다운로드를 요청했습니다. 다운로드 폴더를 확인한 뒤 버전 2에서 가져오세요.';
+  };
+  inspect();
+</script>
+</body></html>
+
